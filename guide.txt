@@ -1,0 +1,7 @@
+4 threads in server:
+- client list manager
+- connection listerner
+- input taker
+- executer
+  -print (msg to clients)
+  -
