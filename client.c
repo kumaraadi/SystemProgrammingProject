@@ -5,12 +5,20 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <signal.h>
 
 void *writingThread(void *ptr);
+
 
 int sock;
 char buf[1024];
 char buff[1024];
+
+void sigintHandler(int sig_num) 
+{ 
+     write(sock, "exit\n", 5);
+}
+
 int main(int argc, char *argv[])
 {
 
@@ -38,6 +46,8 @@ int main(int argc, char *argv[])
 	}
 	bcopy(hp->h_addr, &server.sin_addr, hp->h_length);
 	server.sin_port = htons(atoi(argv[2]));
+		// server.sin_port = htons(11111);
+
 
 	if (connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0)
 	{
@@ -51,15 +61,20 @@ int main(int argc, char *argv[])
 		if (r_val > 0)
 		{
 			write(STDOUT_FILENO, buf, r_val);
+		}else{
+			write(STDOUT_FILENO, "Server Offline.\n", 16);
+			break;
 		}
 	}
+	exit(0);
 	close(sock);
 }
 void *writingThread(void *ptr)
 {
+	signal(SIGINT, sigintHandler);
 	while (1)
 	{
-		write(STDOUT_FILENO, "-->", 3);
+		// write(STDOUT_FILENO, "-->", 3);
 		int r_ret = read(STDIN_FILENO, buff, 1024);
 
 		if (write(sock, buff, r_ret) < 0)
